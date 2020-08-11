@@ -8,3 +8,23 @@ def more_frequent_item(lst, item1, item2):
   else: return item2
 
 print(more_frequent_item([2, 3, 3, 2, 3, 2, 3, 2, 3], 2, 3))
+
+
+
+///Middle Item
+Create a function called middle_element that has one parameter named lst.
+If there are an odd number of elements in lst, the function should return the middle element. 
+If there are an even number of elements, the function should return the average of the middle two elements.///
+
+
+def middle_element(lst):
+  listl = len(lst)
+  if(listl % 2 == 0):
+    s = int(listl/2)
+    k=int((listl/2)-1)
+    return int((lst[s]+lst[k])/2)
+  else:
+    s = int(listl/2)
+    return lst[s]
+
+print(middle_element([5, 2, -10, -4, 4]))
