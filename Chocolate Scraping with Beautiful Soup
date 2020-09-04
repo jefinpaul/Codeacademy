@@ -1,0 +1,68 @@
+import codecademylib3_seaborn
+from bs4 import BeautifulSoup
+import requests
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+webpage = requests.get('https://s3.amazonaws.com/codecademy-content/courses/beautifulsoup/cacao/index.html')
+
+d = webpage.content
+soup= BeautifulSoup(d, 'html.parser')
+
+
+rate= soup.find_all(attrs={'class':"Rating"})
+ratings=[]
+'''
+Loop through the ratings tags and get the text contained in each one. Add it to the ratings list.
+
+As you do this, convert the rating to a float, so that the ratings list will be numerical. This should help with calculations later.'''
+
+for rates in rate[1:]:
+  ratings.append(float(rates.string))
+print(ratings)
+plt.hist(ratings)
+plt.show()
+
+'''
+We want to now find the 10 most highly rated chocolatiers. One way to do this is to make a DataFrame that has the chocolate companies in one column, and the ratings in another. Then, we can do a groupby to find the ones with the highest average rating.
+
+First, let’s find all the tags on the webpage that contain the company names.'''
+companies_data= soup.select(".Company")
+company = []
+for companies in companies_data[1:]:
+  company.append(companies.get_text())
+print(company)
+dict = {
+  "Ratings":ratings, "Companies": company
+}
+
+df = pd.DataFrame.from_dict(dict)
+print(df.head())
+
+'''Use .groupby to group your DataFrame by Company and take the average of the grouped ratings.
+
+Then, use the .nlargest command to get the 10 highest rated chocolate companies. Print them out.'''
+mean_ratings = df.groupby("Companies").Ratings.mean()
+ten_best =  mean_ratings.nlargest(10)
+print(ten_best)
+
+'''We want to see if the chocolate experts tend to rate chocolate bars with higher levels of cacao to be better than those with lower levels of cacao.
+
+It looks like the cocoa percentages are in the table under the Cocoa Percent column.
+
+Using the same methods you used in the last couple of tasks, create a list that contains all of the cocoa percentages. Store each percent as an integer, after stripping off the % character.'''
+cocoa_percents = []
+cocoa_percent_tags = soup.select(".CocoaPercent")
+
+for td in cocoa_percent_tags[1:]:
+  cocoa_percents.append(int(float(td.string[:-1])))
+
+print(cocoa_percents)
+df["CocoaPercentage"] = cocoa_percents
+plt.cla()
+plt.scatter(df.CocoaPercentage, df.Ratings)
+z = np.polyfit(df.CocoaPercentage, df.Ratings, 1)
+line_function = np.poly1d(z)
+plt.plot(df.CocoaPercentage, line_function(df.CocoaPercentage), "r--")
+plt.show()
